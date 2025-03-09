@@ -1,0 +1,157 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: shiny-server-template
+message: |-
+  The following service(s) have been scheduled for creation in your project: ${APP_NAME}.
+  Building images takes some minutes to complete, so please be patient. You can follow progress on your projects overview page.
+metadata:
+  name: shiny-server-template
+  annotations:
+    description: An example R Shiny server template
+    iconClass: icon-play
+    openshift.io/display-name: R Shiny server
+    openshift.io/documentation-url: https://github.com/nerc-project/rshiny-testapp
+    openshift.io/long-description: R Shiny server
+    openshift.io/support-url: https://nerc.mghpcc.org/contact-us/
+    tags: quickstart,r,shiny,rshiny,r-shiny
+objects:
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      annotations:
+        description: "Keeps track of changes in the ${APP_NAME} Shiny application image"
+      name: ${APP_NAME}-imagestream
+    spec:
+      lookupPolicy:
+        local: true
+
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      annotations:
+        description: "Defines how to build the ${APP_NAME} Shiny application"
+        template.alpha.openshift.io/wait-for-ready: "true"      
+      name: ${APP_NAME}-build
+    spec:
+      source:
+        git:
+          uri: ${APP_GIT_URI}
+          ref: ${APP_GIT_BRANCH}
+        type: Git
+      strategy:
+        dockerStrategy:
+          dockerfilePath: "${REPO_DOCKERFILE_PATH}"
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${APP_NAME}-imagestream:${IMAGE_TAG}"
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        description: "Defines how to deploy the ${APP_NAME} Shiny application server"
+        template.alpha.openshift.io/wait-for-ready: "true"
+      labels:
+        app.kubernetes.io/part-of: "${APP_NAME}"
+      name: ${APP_NAME}-deployment
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ${APP_LABEL}
+      template:
+        metadata:
+          labels:
+            app: ${APP_LABEL}
+        spec:
+          containers:
+            - name: ${APP_NAME}-container
+              image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${APP_NAME}-imagestream:${IMAGE_TAG}
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: 3838
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3838
+                initialDelaySeconds: ${{PROBE_INITIAL_DELAY}}
+                timeoutSeconds: ${{PROBE_TIMEOUT}}
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3838
+                initialDelaySeconds: ${{PROBE_INITIAL_DELAY}}
+                timeoutSeconds: ${{PROBE_TIMEOUT}}
+          restartPolicy: Always
+        #   imagePullSecrets:
+        #     - name: dockerhub-image-pull-secret
+      strategy:
+        type: Recreate
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        description: "Exposes and load balances the ${APP_NAME} Shiny application pod"
+      name: ${APP_NAME}-service
+    spec:
+      selector:
+        app: ${APP_LABEL}
+      ports:
+        - name: "${APP_NAME}-port"
+          port: 80
+          protocol: TCP
+          targetPort: 3838
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: ${APP_NAME}-route
+    spec:
+      to:
+        kind: Service
+        name: ${APP_NAME}-service
+        weight: 100
+      port:
+        targetPort: "${APP_NAME}-port"
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+parameters:
+  - name: APP_NAME
+    description: Name of the application
+    required: true
+    value: shiny-app
+  - name: APP_LABEL
+    description: Label used for the app
+    value: shiny
+  - name: APP_GIT_URI
+    description: GitHub repository URL
+    required: true
+    value: "https://github.com/Milstein/R-shiny.git"
+  - name: APP_GIT_BRANCH
+    description: Git branch to build from
+    required: true
+    value: main
+  - name: REPO_DOCKERFILE_PATH
+    description: Deployment git branch
+    value: "Dockerfile"
+  - name: IMAGE_TAG
+    description: Tag for the built image
+    required: false
+    value: "latest"
+  - name: NAMESPACE
+    description: Namespace where the application will be deployed
+    required: true
+    value: YOUR-NAMEPACE
+  - name: PROBE_INITIAL_DELAY
+    description: Initial delay in seconds for liveness and readiness probes
+    value: "30"
+  - name: PROBE_TIMEOUT
+    description: Timeout in seconds for liveness and readiness probes
+    value: "30"
