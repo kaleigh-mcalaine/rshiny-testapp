@@ -11,7 +11,7 @@ metadata:
     description: An example R Shiny server template
     iconClass: icon-play
     openshift.io/display-name: R Shiny server
-    openshift.io/documentation-url: https://github.com/nerc-project/rshiny-testapp
+    openshift.io/documentation-url: https://nerc-project.github.io/nerc-docs/other-tools/R/r-shiny-server/running-rshiny-on-NERC/#running-rshiny-server-on-nerc-openshift
     openshift.io/long-description: R Shiny server
     openshift.io/support-url: https://nerc.mghpcc.org/contact-us/
     tags: quickstart,r,shiny,rshiny,r-shiny
@@ -92,6 +92,7 @@ objects:
         #     - name: dockerhub-image-pull-secret
       strategy:
         type: Recreate
+
   - apiVersion: v1
     kind: Service
     metadata:
@@ -133,7 +134,7 @@ parameters:
   - name: APP_GIT_URI
     description: GitHub repository URL
     required: true
-    value: "https://github.com/Milstein/R-shiny.git"
+    value: "https://github.com/nerc-project/rshiny-testapp.git"
   - name: APP_GIT_BRANCH
     description: Git branch to build from
     required: true
