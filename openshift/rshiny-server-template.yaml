@@ -125,7 +125,7 @@ objects:
       wildcardPolicy: None
 parameters:
   - name: APP_NAME
-    description: Name of the application
+    description: Name used for the app
     required: true
     value: shiny-app
   - name: APP_LABEL
@@ -140,7 +140,7 @@ parameters:
     required: true
     value: main
   - name: REPO_DOCKERFILE_PATH
-    description: Deployment git branch
+    description: Location of the shiny app Dockerfile
     value: "Dockerfile"
   - name: IMAGE_TAG
     description: Tag for the built image
