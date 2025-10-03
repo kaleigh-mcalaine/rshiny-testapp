@@ -9,8 +9,9 @@ library(vipor) # for interactive vipor plot
 
 
 # (0) Load data ----
-#DF_ALL <- read_csv("S:/EOME/Weisskopf/Saint_Louis_Baby_Teeth_Study/Data 2020/Tooth Analysis/ToothData B1_5 Clean/toothmetalaverages_080825.csv")
-DAT_LONG_ALL <- read_csv("C:/Users/kam6950/Documents/GitHub/rshiny-testapp/src/dat_long_all.csv") 
+# DF_ALL <- read_csv("S:/EOME/Weisskopf/Saint_Louis_Baby_Teeth_Study/Data 2020/Tooth Analysis/ToothData B1_5 Clean/toothmetalaverages_080825.csv")
+# DAT_LONG_ALL <- read_csv("C:/Users/kam6950/Documents/GitHub/rshiny-testapp/src/dat_long_all.csv") 
+DAT_LONG_ALL <- read_csv("dat_long_all.csv") 
 
 # (1) Limited retidy----
 
@@ -28,39 +29,7 @@ dat_long_all <- DAT_LONG_ALL %>%
                                   "Manganese (Mn)",
                                   "Lithium (Li)")))
 
-# # (1) Tidy data ----
-#   # (1.1) tidy metals data into long df
-#     dat_long_all <- DF_ALL %>% 
-#       
-#       # rewrite study ids (@ TEMPORARY)
-#       arrange(study_id) %>%
-#       mutate(study_id = dense_rank(study_id) + 123455) %>%
-#     
-#       select(study_id, starts_with(c("pb_", "zn_", "mn_", "li_")), -c(contains("tri"))) %>%
-#       pivot_longer(cols = contains("metal"), values_to = "concentration", names_to = "metal_metric") %>% 
-#       
-#       # clean exposure period
-#       mutate(exp_pd_fac = factor(case_when(grepl("_pre123", metal_metric) ~ "Prenatal Average",
-#                                               grepl("_post123", metal_metric) ~ "Postnatal Average",
-#                                               TRUE ~ "Combined Average"), 
-#       levels = c("Combined Average", "Prenatal Average", "Postnatal Average"))) %>%
-#       
-#       # clean metals
-#       separate(metal_metric, into = c("metal", NA, NA, NA), sep="_", remove=FALSE) %>%
-#       mutate(metal_fac = factor(case_when(metal == "pb" ~ "Lead (Pb)",
-#                                              metal == "zn" ~ "Zinc (Zn)",
-#                                              metal == "mn" ~ "Manganese (Mn)",
-#                                              metal == "li" ~ "Lithium (Li)"),
-#       levels = c("Lead (Pb)","Zinc (Zn)","Manganese (Mn)","Lithium (Li)"))
-#       ) %>%
-#       
-#       # filter out "bad values"
-#       filter(!is.na(concentration)) %>%
-#       #filter(concentration > 0) %>%
-#       filter(!(metal_fac == "Zinc (Zn)" & concentration >= 300)) %>%
-#       filter(!(metal_fac == "Lithium (Li)" & concentration >= 15)) 
-#     
-    
+
   # write_csv(dat_long_all, "S:/EOME/Weisskopf/Saint_Louis_Baby_Teeth_Study/Data 2020/Webpage/YourData/test_deploy/dat_long_all.csv", na="")
       
   # (1.2) add count for graphic
