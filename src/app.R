@@ -12,7 +12,10 @@ library(DT) # for bottom table
 
 # (0) Load data ----
 # DF_ALL <- read_csv("S:/EOME/Weisskopf/Saint_Louis_Baby_Teeth_Study/Data 2020/Tooth Analysis/ToothData B1_5 Clean/toothmetalaverages_080825.csv")
-DAT_LONG_ALL <- read_csv("C:/Users/kam6950/Documents/GitHub/rshiny-testapp/src/dat_long_all.csv") 
+# DAT_LONG_ALL <- read_csv("C:/Users/kam6950/Documents/GitHub/rshiny-testapp/src/dat_long_all.csv") 
+
+DAT_LONG_ALL <- read_csv("dat_long_all.csv")
+
 
 # (1) Limited retidy----
 dat_long_all <- DAT_LONG_ALL %>%
